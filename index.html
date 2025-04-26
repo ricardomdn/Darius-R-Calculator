@@ -1,0 +1,685 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darius R Damage Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a1128;
+            color: #e2e8f0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%230a1128' opacity='0.9'/%3E%3Cpath d='M400 150C250 150 150 300 150 400C150 500 250 550 400 550C550 550 650 500 650 400C650 300 550 150 400 150Z' fill='%23991b1b' opacity='0.1'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cpath d='M400 100C200 100 100 300 100 400C100 500 200 550 400 550C600 550 700 500 700 400C700 300 600 100 400 100Z' fill='%23991b1b' opacity='0.05'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+        
+        .item-card {
+            transition: all 0.3s ease;
+        }
+        .item-card:hover {
+            transform: translateY(-5px);
+        }
+        .item-card.selected {
+            border: 2px solid #dc2626;
+            background-color: rgba(220, 38, 38, 0.1);
+        }
+        .blood-bg {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+        }
+        .conqueror-bg {
+            background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+        }
+        .last-stand-bg {
+            background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%);
+        }
+        .shojin-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        }
+        .axiom-bg {
+            background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+        }
+        .container {
+            backdrop-filter: blur(5px);
+        }
+        .darius-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cpath d='M350 150C200 150 100 250 100 400C100 550 250 550 400 550C550 550 700 500 700 350C700 200 500 150 350 150Z' fill='%23991b1b' opacity='0.1'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body>
+    <div class="darius-bg"></div>
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold blood-bg inline-block px-6 py-2 rounded-lg text-white mb-2">Darius R Damage Calculator</h1>
+            <p class="text-gray-300">Calculate how much damage Darius' ultimate will deal based on your build</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column: Champion Stats -->
+            <div class="bg-gray-800 bg-opacity-90 rounded-lg p-6 shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-red-500">Your Champion Stats</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Attack Damage (AD)</label>
+                    <input type="number" id="ad" value="100" min="0" class="w-full bg-gray-700 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Ultimate Level</label>
+                    <select id="r-level" class="w-full bg-gray-700 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Your Maximum Health</label>
+                    <input type="number" id="your-max-health" value="2000" min="1" class="w-full bg-gray-700 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Your Current Health</label>
+                    <input type="number" id="your-current-health" value="2000" min="1" class="w-full bg-gray-700 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Last Stand Bonus</label>
+                    <div class="flex items-center">
+                        <div class="h-2 flex-grow bg-gray-700 rounded-full overflow-hidden">
+                            <div id="last-stand-bar" class="h-full last-stand-bg" style="width: 0%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-400">
+                            <span id="last-stand-bonus">+0%</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Passive Stacks</label>
+                    <div class="flex items-center">
+                        <input type="range" id="passive-stacks" min="0" max="5" value="0" class="w-full mr-4 accent-red-500">
+                        <span id="passive-stacks-value" class="text-xl font-bold text-red-500">0</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Conqueror Stacks</label>
+                    <div class="flex items-center">
+                        <input type="range" id="conqueror-stacks" min="0" max="12" value="0" class="w-full mr-4 accent-red-500">
+                        <span id="conqueror-stacks-value" class="text-xl font-bold text-red-500">0</span>
+                    </div>
+                    <div class="mt-2 flex items-center">
+                        <div class="h-2 flex-grow bg-gray-700 rounded-full overflow-hidden">
+                            <div id="conqueror-bar" class="h-full conqueror-bg" style="width: 0%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-400">
+                            <span id="conqueror-ad-bonus">+0</span> AD
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Spear of Shojin Stacks</label>
+                    <div class="flex items-center">
+                        <input type="range" id="shojin-stacks" min="0" max="4" value="0" class="w-full mr-4 accent-blue-500">
+                        <span id="shojin-stacks-value" class="text-xl font-bold text-blue-500">0</span>
+                    </div>
+                    <div class="mt-2 flex items-center">
+                        <div class="h-2 flex-grow bg-gray-700 rounded-full overflow-hidden">
+                            <div id="shojin-bar" class="h-full shojin-bg" style="width: 0%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-400">
+                            <span id="shojin-damage-bonus">+0%</span> damage
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Items and Target Stats -->
+            <div class="bg-gray-800 bg-opacity-90 rounded-lg p-6 shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-red-500">Target Stats</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Target Maximum Health</label>
+                    <input type="number" id="target-max-health" value="2000" min="1" class="w-full bg-gray-700 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Target Current Health</label>
+                    <input type="number" id="target-current-health" value="2000" min="1" class="w-full bg-gray-700 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                
+                <h2 class="text-2xl font-bold mb-4 mt-6 text-red-500">Items <span id="item-count" class="text-sm text-gray-400">(0/6)</span></h2>
+                
+                <div class="grid grid-cols-2 gap-3 mb-4 max-h-[400px] overflow-y-auto pr-2">
+                    <div class="item-card bg-gray-700 rounded-lg p-3 cursor-pointer" data-item="collector">
+                        <h3 class="font-bold">The Collector</h3>
+                        <p class="text-xs text-gray-400">Execute below 5% health</p>
+                    </div>
+                    <div class="item-card bg-gray-700 rounded-lg p-3 cursor-pointer" data-item="spear-of-shojin">
+                        <h3 class="font-bold">Spear of Shojin</h3>
+                        <p class="text-xs text-gray-400">+3% ability damage per stack</p>
+                    </div>
+                </div>
+                
+                <button id="clear-items" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+                    Clear Items
+                </button>
+                
+                <div class="mt-6">
+                    <h3 class="text-xl font-bold mb-3 text-red-500">Darius</h3>
+                    <div class="bg-gray-700 rounded-lg p-3">
+                        <p class="text-sm text-gray-300 mb-2"><strong>Noxian Guillotine (R):</strong> Darius leaps to an enemy champion and strikes a lethal blow, dealing true damage.</p>
+                        <p class="text-sm text-gray-300"><strong>Passive - Hemorrhage:</strong> Darius' attacks and abilities cause enemies to bleed. Each stack of Hemorrhage increases the damage of Noxian Guillotine.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Runes and Results -->
+            <div class="bg-gray-800 bg-opacity-90 rounded-lg p-6 shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-red-500">Runes</h2>
+                
+                <div class="mb-6">
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="pta" class="mr-2 h-5 w-5 accent-red-500">
+                        <label for="pta" class="text-gray-300">Press the Attack (8-12% increased damage)</label>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="last-stand" class="mr-2 h-5 w-5 accent-red-500">
+                        <label for="last-stand" class="text-gray-300">Last Stand (5-11% increased damage)</label>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="coup-de-grace" class="mr-2 h-5 w-5 accent-red-500">
+                        <label for="coup-de-grace" class="text-gray-300">Coup de Grace (8% increased damage)</label>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="cut-down" class="mr-2 h-5 w-5 accent-red-500">
+                        <label for="cut-down" class="text-gray-300">Cut Down (5-15% increased damage)</label>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="axiom-arcanist" class="mr-2 h-5 w-5 accent-indigo-500">
+                        <label for="axiom-arcanist" class="text-gray-300">Axiom Arcanist (9% increased ultimate damage)</label>
+                    </div>
+                    <div class="mt-2 flex items-center" id="axiom-arcanist-container" style="display: none;">
+                        <div class="h-2 flex-grow bg-gray-700 rounded-full overflow-hidden">
+                            <div id="axiom-arcanist-bar" class="h-full axiom-bg" style="width: 100%"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-400">
+                            <span id="axiom-arcanist-bonus">+9%</span> damage
+                        </span>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-4 text-red-500">Results</h2>
+                
+                <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-300">Base R Damage:</span>
+                        <span id="base-damage" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-300">Passive Bonus:</span>
+                        <span id="passive-bonus" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-300">Total Raw Damage:</span>
+                        <span id="raw-damage" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-300">Damage Multiplier:</span>
+                        <span id="damage-multiplier" class="font-bold">1.0x</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-300">Rune Bonuses:</span>
+                        <span id="rune-bonuses" class="font-bold">None</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-300">Item Bonuses:</span>
+                        <span id="item-bonuses" class="font-bold">None</span>
+                    </div>
+                    <hr class="border-gray-700 my-2">
+                    <div class="flex justify-between items-center text-xl">
+                        <span class="text-red-500 font-bold">Final Damage:</span>
+                        <span id="final-damage" class="font-bold text-red-500">0</span>
+                    </div>
+                </div>
+
+                <div class="bg-red-900 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">Execution Status</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm">Target Health:</p>
+                            <div class="text-xl font-bold" id="target-health-display">2000/2000</div>
+                        </div>
+                        <div>
+                            <p class="text-sm">After Ultimate:</p>
+                            <div class="text-xl font-bold" id="remaining-health">2000 HP</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <span id="execution-status" class="px-4 py-1 rounded-full font-bold">CALCULATING...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+          <p>
+              Noxus Will Rise! Check out my card: 
+              <a href="https://zyo.se/Darius" class="text-gray-100 underline hover:text-white">Darius</a> | 
+              Developed by 
+              <a href="https://github.com/ricardomdn" class="text-gray-100 underline hover:text-white">Ricardo</a>
+          </p>
+      </footer>
+      
+    </div>
+
+    <script>
+        // Constants for Darius R
+        const BASE_DAMAGE = [100, 200, 300]; // Base damage at levels 1, 2, 3
+        const AD_RATIO = 0.75; // 75% bonus AD ratio
+        const PASSIVE_DAMAGE_PER_STACK = 35; // Additional damage per stack of hemorrhage
+        const CONQUEROR_AD_PER_STACK = 2; // AD gained per Conqueror stack (2-5 based on level, using 2 as base)
+        const SHOJIN_DAMAGE_PER_STACK = 3; // 3% increased ability damage per Shojin stack
+        const AXIOM_ARCANIST_BONUS = 9; // 9% increased ultimate damage for AoE abilities
+
+        // DOM Elements
+        const adInput = document.getElementById('ad');
+        const rLevelSelect = document.getElementById('r-level');
+        const passiveStacksInput = document.getElementById('passive-stacks');
+        const passiveStacksValue = document.getElementById('passive-stacks-value');
+        const conquerorStacksInput = document.getElementById('conqueror-stacks');
+        const conquerorStacksValue = document.getElementById('conqueror-stacks-value');
+        const conquerorBar = document.getElementById('conqueror-bar');
+        const conquerorAdBonus = document.getElementById('conqueror-ad-bonus');
+        const shojinStacksInput = document.getElementById('shojin-stacks');
+        const shojinStacksValue = document.getElementById('shojin-stacks-value');
+        const shojinBar = document.getElementById('shojin-bar');
+        const shojinDamageBonus = document.getElementById('shojin-damage-bonus');
+        const yourMaxHealthInput = document.getElementById('your-max-health');
+        const yourCurrentHealthInput = document.getElementById('your-current-health');
+        const lastStandBar = document.getElementById('last-stand-bar');
+        const lastStandBonus = document.getElementById('last-stand-bonus');
+        const targetMaxHealthInput = document.getElementById('target-max-health');
+        const targetCurrentHealthInput = document.getElementById('target-current-health');
+        const itemCards = document.querySelectorAll('.item-card');
+        const itemCount = document.getElementById('item-count');
+        const clearItemsBtn = document.getElementById('clear-items');
+        const axiomArcanistContainer = document.getElementById('axiom-arcanist-container');
+        
+        // Results elements
+        const baseDamageEl = document.getElementById('base-damage');
+        const passiveBonusEl = document.getElementById('passive-bonus');
+        const rawDamageEl = document.getElementById('raw-damage');
+        const damageMultiplierEl = document.getElementById('damage-multiplier');
+        const runeBonusesEl = document.getElementById('rune-bonuses');
+        const itemBonusesEl = document.getElementById('item-bonuses');
+        const finalDamageEl = document.getElementById('final-damage');
+        const targetHealthDisplay = document.getElementById('target-health-display');
+        const remainingHealthEl = document.getElementById('remaining-health');
+        const executionStatusEl = document.getElementById('execution-status');
+
+        // Rune checkboxes
+        const ptaCheckbox = document.getElementById('pta');
+        const lastStandCheckbox = document.getElementById('last-stand');
+        const coupDeGraceCheckbox = document.getElementById('coup-de-grace');
+        const cutDownCheckbox = document.getElementById('cut-down');
+        const axiomArcanistCheckbox = document.getElementById('axiom-arcanist');
+
+        // State
+        let selectedItems = [];
+
+        // Event listeners
+        passiveStacksInput.addEventListener('input', () => {
+            passiveStacksValue.textContent = passiveStacksInput.value;
+            calculateDamage();
+        });
+
+        conquerorStacksInput.addEventListener('input', () => {
+            const stacks = parseInt(conquerorStacksInput.value) || 0;
+            conquerorStacksValue.textContent = stacks;
+            
+            // Update conqueror bar
+            const percentage = (stacks / 12) * 100;
+            conquerorBar.style.width = `${percentage}%`;
+            
+            // Update AD bonus
+            const adBonus = stacks * CONQUEROR_AD_PER_STACK;
+            conquerorAdBonus.textContent = `+${adBonus}`;
+            
+            calculateDamage();
+        });
+
+        shojinStacksInput.addEventListener('input', () => {
+            const stacks = parseInt(shojinStacksInput.value) || 0;
+            shojinStacksValue.textContent = stacks;
+            
+            // Update Shojin bar
+            const percentage = (stacks / 4) * 100;
+            shojinBar.style.width = `${percentage}%`;
+            
+            // Update damage bonus
+            const damageBonus = stacks * SHOJIN_DAMAGE_PER_STACK;
+            shojinDamageBonus.textContent = `+${damageBonus}%`;
+            
+            calculateDamage();
+        });
+
+        // Ensure current health doesn't exceed max health for your champion
+        yourMaxHealthInput.addEventListener('input', () => {
+            const maxHealth = parseInt(yourMaxHealthInput.value) || 0;
+            const currentHealth = parseInt(yourCurrentHealthInput.value) || 0;
+            
+            if (currentHealth > maxHealth) {
+                yourCurrentHealthInput.value = maxHealth;
+            }
+            
+            updateLastStandBonus();
+            calculateDamage();
+        });
+
+        yourCurrentHealthInput.addEventListener('input', () => {
+            const maxHealth = parseInt(yourMaxHealthInput.value) || 0;
+            const currentHealth = parseInt(yourCurrentHealthInput.value) || 0;
+            
+            if (currentHealth > maxHealth) {
+                yourCurrentHealthInput.value = maxHealth;
+            }
+            
+            updateLastStandBonus();
+            calculateDamage();
+        });
+
+        // Ensure current health doesn't exceed max health for target
+        targetMaxHealthInput.addEventListener('input', () => {
+            const maxHealth = parseInt(targetMaxHealthInput.value) || 0;
+            const currentHealth = parseInt(targetCurrentHealthInput.value) || 0;
+            
+            if (currentHealth > maxHealth) {
+                targetCurrentHealthInput.value = maxHealth;
+            }
+            
+            calculateDamage();
+        });
+
+        targetCurrentHealthInput.addEventListener('input', () => {
+            const maxHealth = parseInt(targetMaxHealthInput.value) || 0;
+            const currentHealth = parseInt(targetCurrentHealthInput.value) || 0;
+            
+            if (currentHealth > maxHealth) {
+                targetCurrentHealthInput.value = maxHealth;
+            }
+            
+            calculateDamage();
+        });
+
+        adInput.addEventListener('input', calculateDamage);
+        rLevelSelect.addEventListener('change', calculateDamage);
+        ptaCheckbox.addEventListener('change', calculateDamage);
+        lastStandCheckbox.addEventListener('change', () => {
+            updateLastStandBonus();
+            calculateDamage();
+        });
+        coupDeGraceCheckbox.addEventListener('change', calculateDamage);
+        cutDownCheckbox.addEventListener('change', calculateDamage);
+        axiomArcanistCheckbox.addEventListener('change', () => {
+            axiomArcanistContainer.style.display = axiomArcanistCheckbox.checked ? 'flex' : 'none';
+            calculateDamage();
+        });
+
+        // Item selection
+        itemCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const itemName = card.dataset.item;
+                
+                if (card.classList.contains('selected')) {
+                    // Remove item
+                    card.classList.remove('selected');
+                    selectedItems = selectedItems.filter(item => item !== itemName);
+                } else {
+                    // Add item if less than 6 are selected
+                    if (selectedItems.length < 6) {
+                        card.classList.add('selected');
+                        selectedItems.push(itemName);
+                    } else {
+                        alert('You can only select up to 6 items!');
+                    }
+                }
+                
+                itemCount.textContent = `(${selectedItems.length}/6)`;
+                calculateDamage();
+            });
+        });
+
+        clearItemsBtn.addEventListener('click', () => {
+            itemCards.forEach(card => card.classList.remove('selected'));
+            selectedItems = [];
+            itemCount.textContent = `(0/6)`;
+            calculateDamage();
+        });
+
+        // Update Last Stand bonus based on your current health percentage
+        function updateLastStandBonus() {
+            const maxHealth = parseInt(yourMaxHealthInput.value) || 1;
+            const currentHealth = parseInt(yourCurrentHealthInput.value) || 1;
+            const healthPercent = (currentHealth / maxHealth) * 100;
+            
+            // Last Stand gives bonus damage when below 60% health
+            // Scales from 5% at 60% health to 11% at 30% health or below
+            let lastStandBonusPercent = 0;
+            
+            if (healthPercent <= 60) {
+                if (healthPercent <= 30) {
+                    lastStandBonusPercent = 11; // Maximum bonus at 30% health or below
+                } else {
+                    // Linear scaling between 60% and 30% health
+                    // 5% at 60% health, 11% at 30% health
+                    const healthRatio = (60 - healthPercent) / 30; // 0 at 60% health, 1 at 30% health
+                    lastStandBonusPercent = 5 + (6 * healthRatio); // Scale between 5% and 11%
+                }
+            }
+            
+            // Update UI
+            const barPercentage = lastStandBonusPercent / 11 * 100; // Scale to percentage of max bonus
+            lastStandBar.style.width = `${barPercentage}%`;
+            lastStandBonus.textContent = `+${lastStandBonusPercent.toFixed(1)}%`;
+            
+            return lastStandBonusPercent;
+        }
+
+        // Main calculation function
+        function calculateDamage() {
+            const baseAd = parseInt(adInput.value) || 0;
+            const rLevel = parseInt(rLevelSelect.value) || 1;
+            const passiveStacks = parseInt(passiveStacksInput.value) || 0;
+            const conquerorStacks = parseInt(conquerorStacksInput.value) || 0;
+            const shojinStacks = parseInt(shojinStacksInput.value) || 0;
+            const targetMaxHealth = parseInt(targetMaxHealthInput.value) || 1;
+            const targetCurrentHealth = parseInt(targetCurrentHealthInput.value) || 1;
+            
+            // Calculate health percentage for certain effects
+            const targetHealthPercent = (targetCurrentHealth / targetMaxHealth) * 100;
+            
+            // Add Conqueror AD bonus
+            const conquerorAdBonus = conquerorStacks * CONQUEROR_AD_PER_STACK;
+            const totalAd = baseAd + conquerorAdBonus;
+            
+            // Calculate base damage
+            const baseDamage = BASE_DAMAGE[rLevel - 1] + (totalAd * AD_RATIO);
+            const passiveBonus = passiveStacks * PASSIVE_DAMAGE_PER_STACK;
+            const rawDamage = baseDamage + passiveBonus;
+            
+            // Since we removed armor penetration, we'll use a fixed damage multiplier of 1.0
+            const damageMultiplier = 1.0;
+            
+            // Calculate damage after armor (which is now just the raw damage)
+            let finalDamage = rawDamage;
+            
+            // Apply rune effects
+            let runeBonuses = [];
+            let totalRuneMultiplier = 1.0;
+            
+            if (ptaCheckbox.checked) {
+                // PTA increases damage by 8-12% based on level, using 10% as average
+                totalRuneMultiplier *= 1.1;
+                runeBonuses.push("PTA: +10%");
+            }
+            
+            if (lastStandCheckbox.checked) {
+                // Last Stand increases damage based on your missing health
+                const lastStandBonusPercent = updateLastStandBonus();
+                if (lastStandBonusPercent > 0) {
+                    totalRuneMultiplier *= (1 + (lastStandBonusPercent / 100));
+                    runeBonuses.push(`Last Stand: +${lastStandBonusPercent.toFixed(1)}%`);
+                }
+            }
+            
+            if (coupDeGraceCheckbox.checked && targetHealthPercent <= 40) {
+                // Coup de Grace increases damage by 8% against targets below 40% health
+                totalRuneMultiplier *= 1.08;
+                runeBonuses.push("Coup de Grace: +8%");
+            }
+            
+            if (cutDownCheckbox.checked) {
+                // Cut Down increases damage by 5-15% against targets with more max health
+                const yourMaxHealth = parseInt(yourMaxHealthInput.value) || 1;
+                
+                if (targetMaxHealth > yourMaxHealth) {
+                    const healthDifference = (targetMaxHealth - yourMaxHealth) / yourMaxHealth;
+                    let cutDownBonus = 0;
+                    
+                    if (healthDifference >= 0.1) {
+                        // Starts at 5% for 10% more health
+                        cutDownBonus = 5;
+                        
+                        // Additional bonus up to 10% more (max 15% total)
+                        if (healthDifference > 0.1) {
+                            const additionalBonus = Math.min(10, (healthDifference - 0.1) * 100);
+                            cutDownBonus += additionalBonus;
+                        }
+                        
+                        totalRuneMultiplier *= (1 + (cutDownBonus / 100));
+                        runeBonuses.push(`Cut Down: +${cutDownBonus.toFixed(1)}%`);
+                    }
+                }
+            }
+            
+            if (axiomArcanistCheckbox.checked) {
+                // Axiom Arcanist increases ultimate damage by 9% for AoE abilities
+                totalRuneMultiplier *= (1 + (AXIOM_ARCANIST_BONUS / 100));
+                runeBonuses.push(`Axiom Arcanist: +${AXIOM_ARCANIST_BONUS}%`);
+            }
+            
+            // Apply rune multiplier to damage
+            finalDamage *= totalRuneMultiplier;
+            
+            // Apply item effects
+            let itemBonuses = [];
+            let totalItemMultiplier = 1.0;
+            let hasCollector = false;
+            
+            selectedItems.forEach(item => {
+                switch(item) {
+                    case 'collector':
+                        hasCollector = true;
+                        break;
+                    case 'spear-of-shojin':
+                        if (shojinStacks > 0) {
+                            const shojinBonus = shojinStacks * SHOJIN_DAMAGE_PER_STACK;
+                            totalItemMultiplier *= (1 + (shojinBonus / 100));
+                            itemBonuses.push(`Shojin: +${shojinBonus}%`);
+                        }
+                        break;
+                }
+            });
+            
+            // Apply item multiplier to damage
+            finalDamage *= totalItemMultiplier;
+            
+            // Apply Collector execute if applicable
+            let isExecuted = false;
+            if (hasCollector && targetHealthPercent <= 5) {
+                // The Collector executes targets below 5% health
+                finalDamage = targetCurrentHealth; // Set damage to current health for execution
+                isExecuted = true;
+            }
+            
+            // Calculate remaining health
+            let remainingHealth = targetCurrentHealth - Math.round(finalDamage);
+            if (isExecuted || remainingHealth <= 0) {
+                remainingHealth = 0;
+            }
+            
+            // Update UI
+            baseDamageEl.textContent = Math.round(baseDamage);
+            passiveBonusEl.textContent = Math.round(passiveBonus);
+            rawDamageEl.textContent = Math.round(rawDamage);
+            damageMultiplierEl.textContent = damageMultiplier.toFixed(2) + 'x';
+            
+            if (runeBonuses.length > 0) {
+                runeBonusesEl.textContent = runeBonuses.join(', ');
+            } else {
+                runeBonusesEl.textContent = 'None';
+            }
+            
+            if (itemBonuses.length > 0) {
+                itemBonusesEl.textContent = itemBonuses.join(', ');
+            } else {
+                itemBonusesEl.textContent = 'None';
+            }
+            
+            if (isExecuted) {
+                finalDamageEl.textContent = "EXECUTE";
+            } else {
+                finalDamageEl.textContent = Math.round(finalDamage);
+            }
+            
+            // Update health display
+            targetHealthDisplay.textContent = `${targetCurrentHealth}/${targetMaxHealth}`;
+            remainingHealthEl.textContent = `${remainingHealth} HP`;
+            
+            // Update execution status
+            if (remainingHealth <= 0) {
+                executionStatusEl.textContent = "TARGET EXECUTED";
+                executionStatusEl.className = "px-4 py-1 rounded-full font-bold bg-red-600 text-white";
+            } else {
+                executionStatusEl.textContent = "TARGET SURVIVES";
+                executionStatusEl.className = "px-4 py-1 rounded-full font-bold bg-gray-600 text-white";
+            }
+        }
+
+        // Initialize
+        updateLastStandBonus();
+        calculateDamage();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93614d36748927ef',t:'MTc0NTYyMDQwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
