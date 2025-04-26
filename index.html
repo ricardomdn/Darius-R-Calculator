@@ -164,7 +164,6 @@
                 </div>
             </div>
 
-            <!-- Middle Column: Items and Target Stats -->
             <div class="bg-gray-800 bg-opacity-90 rounded-lg p-6 shadow-lg">
                 <h2 class="text-2xl font-bold mb-4 text-red-500">Target Stats</h2>
                 
@@ -204,7 +203,6 @@
                 </div>
             </div>
 
-            <!-- Right Column: Runes and Results -->
             <div class="bg-gray-800 bg-opacity-90 rounded-lg p-6 shadow-lg">
                 <h2 class="text-2xl font-bold mb-4 text-red-500">Runes</h2>
                 
@@ -304,13 +302,12 @@
     </div>
 
     <script>
-        // Constants for Darius R
-        const BASE_DAMAGE = [100, 200, 300]; // Base damage at levels 1, 2, 3
-        const AD_RATIO = 0.75; // 75% bonus AD ratio
-        const PASSIVE_DAMAGE_PER_STACK = 35; // Additional damage per stack of hemorrhage
-        const CONQUEROR_AD_PER_STACK = 2; // AD gained per Conqueror stack (2-5 based on level, using 2 as base)
-        const SHOJIN_DAMAGE_PER_STACK = 3; // 3% increased ability damage per Shojin stack
-        const AXIOM_ARCANIST_BONUS = 9; // 9% increased ultimate damage for AoE abilities
+        const BASE_DAMAGE = [100, 200, 300];
+        const AD_RATIO = 0.75;
+        const PASSIVE_DAMAGE_PER_STACK = 35;
+        const CONQUEROR_AD_PER_STACK = 2;
+        const SHOJIN_DAMAGE_PER_STACK = 3;
+        const AXIOM_ARCANIST_BONUS = 9;
 
         // DOM Elements
         const adInput = document.getElementById('ad');
@@ -394,7 +391,6 @@
             calculateDamage();
         });
 
-        // Ensure current health doesn't exceed max health for your champion
         yourMaxHealthInput.addEventListener('input', () => {
             const maxHealth = parseInt(yourMaxHealthInput.value) || 0;
             const currentHealth = parseInt(yourCurrentHealthInput.value) || 0;
@@ -419,7 +415,6 @@
             calculateDamage();
         });
 
-        // Ensure current health doesn't exceed max health for target
         targetMaxHealthInput.addEventListener('input', () => {
             const maxHealth = parseInt(targetMaxHealthInput.value) || 0;
             const currentHealth = parseInt(targetCurrentHealthInput.value) || 0;
@@ -466,7 +461,6 @@
                     card.classList.remove('selected');
                     selectedItems = selectedItems.filter(item => item !== itemName);
                 } else {
-                    // Add item if less than 6 are selected
                     if (selectedItems.length < 6) {
                         card.classList.add('selected');
                         selectedItems.push(itemName);
@@ -487,36 +481,30 @@
             calculateDamage();
         });
 
-        // Update Last Stand bonus based on your current health percentage
         function updateLastStandBonus() {
             const maxHealth = parseInt(yourMaxHealthInput.value) || 1;
             const currentHealth = parseInt(yourCurrentHealthInput.value) || 1;
             const healthPercent = (currentHealth / maxHealth) * 100;
             
-            // Last Stand gives bonus damage when below 60% health
-            // Scales from 5% at 60% health to 11% at 30% health or below
             let lastStandBonusPercent = 0;
             
             if (healthPercent <= 60) {
                 if (healthPercent <= 30) {
-                    lastStandBonusPercent = 11; // Maximum bonus at 30% health or below
+                    lastStandBonusPercent = 11;
                 } else {
-                    // Linear scaling between 60% and 30% health
-                    // 5% at 60% health, 11% at 30% health
-                    const healthRatio = (60 - healthPercent) / 30; // 0 at 60% health, 1 at 30% health
-                    lastStandBonusPercent = 5 + (6 * healthRatio); // Scale between 5% and 11%
+                    const healthRatio = (60 - healthPercent) / 30; 
+                    lastStandBonusPercent = 5 + (6 * healthRatio);
                 }
             }
             
             // Update UI
-            const barPercentage = lastStandBonusPercent / 11 * 100; // Scale to percentage of max bonus
+            const barPercentage = lastStandBonusPercent / 11 * 100;
             lastStandBar.style.width = `${barPercentage}%`;
             lastStandBonus.textContent = `+${lastStandBonusPercent.toFixed(1)}%`;
             
             return lastStandBonusPercent;
         }
 
-        // Main calculation function
         function calculateDamage() {
             const baseAd = parseInt(adInput.value) || 0;
             const rLevel = parseInt(rLevelSelect.value) || 1;
@@ -526,36 +514,28 @@
             const targetMaxHealth = parseInt(targetMaxHealthInput.value) || 1;
             const targetCurrentHealth = parseInt(targetCurrentHealthInput.value) || 1;
             
-            // Calculate health percentage for certain effects
             const targetHealthPercent = (targetCurrentHealth / targetMaxHealth) * 100;
             
-            // Add Conqueror AD bonus
             const conquerorAdBonus = conquerorStacks * CONQUEROR_AD_PER_STACK;
             const totalAd = baseAd + conquerorAdBonus;
             
-            // Calculate base damage
             const baseDamage = BASE_DAMAGE[rLevel - 1] + (totalAd * AD_RATIO);
             const passiveBonus = passiveStacks * PASSIVE_DAMAGE_PER_STACK;
             const rawDamage = baseDamage + passiveBonus;
             
-            // Since we removed armor penetration, we'll use a fixed damage multiplier of 1.0
             const damageMultiplier = 1.0;
             
-            // Calculate damage after armor (which is now just the raw damage)
             let finalDamage = rawDamage;
             
-            // Apply rune effects
             let runeBonuses = [];
             let totalRuneMultiplier = 1.0;
             
             if (ptaCheckbox.checked) {
-                // PTA increases damage by 8-12% based on level, using 10% as average
                 totalRuneMultiplier *= 1.1;
                 runeBonuses.push("PTA: +10%");
             }
             
             if (lastStandCheckbox.checked) {
-                // Last Stand increases damage based on your missing health
                 const lastStandBonusPercent = updateLastStandBonus();
                 if (lastStandBonusPercent > 0) {
                     totalRuneMultiplier *= (1 + (lastStandBonusPercent / 100));
@@ -564,13 +544,11 @@
             }
             
             if (coupDeGraceCheckbox.checked && targetHealthPercent <= 40) {
-                // Coup de Grace increases damage by 8% against targets below 40% health
                 totalRuneMultiplier *= 1.08;
                 runeBonuses.push("Coup de Grace: +8%");
             }
             
             if (cutDownCheckbox.checked) {
-                // Cut Down increases damage by 5-15% against targets with more max health
                 const yourMaxHealth = parseInt(yourMaxHealthInput.value) || 1;
                 
                 if (targetMaxHealth > yourMaxHealth) {
@@ -578,10 +556,8 @@
                     let cutDownBonus = 0;
                     
                     if (healthDifference >= 0.1) {
-                        // Starts at 5% for 10% more health
                         cutDownBonus = 5;
                         
-                        // Additional bonus up to 10% more (max 15% total)
                         if (healthDifference > 0.1) {
                             const additionalBonus = Math.min(10, (healthDifference - 0.1) * 100);
                             cutDownBonus += additionalBonus;
@@ -594,12 +570,10 @@
             }
             
             if (axiomArcanistCheckbox.checked) {
-                // Axiom Arcanist increases ultimate damage by 9% for AoE abilities
                 totalRuneMultiplier *= (1 + (AXIOM_ARCANIST_BONUS / 100));
                 runeBonuses.push(`Axiom Arcanist: +${AXIOM_ARCANIST_BONUS}%`);
             }
             
-            // Apply rune multiplier to damage
             finalDamage *= totalRuneMultiplier;
             
             // Apply item effects
@@ -622,14 +596,10 @@
                 }
             });
             
-            // Apply item multiplier to damage
             finalDamage *= totalItemMultiplier;
             
-            // Apply Collector execute if applicable
             let isExecuted = false;
             if (hasCollector && targetHealthPercent <= 5) {
-                // The Collector executes targets below 5% health
-                finalDamage = targetCurrentHealth; // Set damage to current health for execution
                 isExecuted = true;
             }
             
@@ -677,7 +647,6 @@
             }
         }
 
-        // Initialize
         updateLastStandBonus();
         calculateDamage();
     </script>
